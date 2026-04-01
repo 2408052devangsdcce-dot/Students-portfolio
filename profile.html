@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyHub — Profile</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{--purple:#8B6FD4;--teal:#3DBFA0;--blue:#5BA3D9;--coral:#FF8C7A;--yellow:#FFD166;--dark:#2C2C3E;--mid:#5A5A7A;--light:#F7F5FF;--border:#EAE6F8;--sidebar-bg:#2C2C3E;}
+  *{margin:0;padding:0;box-sizing:border-box;}
+  body{font-family:'Nunito',sans-serif;background:#F0EDFB;display:flex;min-height:100vh;}
+  .sidebar{width:240px;background:var(--sidebar-bg);min-height:100vh;display:flex;flex-direction:column;position:fixed;left:0;top:0;bottom:0;z-index:100;}
+  .sidebar-logo{padding:28px 24px 20px;display:flex;align-items:center;gap:12px;}
+  .logo-icon{font-size:28px;}.logo-text{font-size:20px;font-weight:900;color:white;}
+  .sidebar-nav{flex:1;padding:8px 12px;}
+  .nav-label{font-size:10px;font-weight:800;color:rgba(255,255,255,0.3);text-transform:uppercase;letter-spacing:1.2px;padding:0 12px;margin:16px 0 8px;}
+  .nav-item{display:flex;align-items:center;gap:12px;padding:11px 14px;border-radius:12px;color:rgba(255,255,255,0.6);font-size:14px;font-weight:700;cursor:pointer;transition:all 0.2s;text-decoration:none;margin-bottom:2px;}
+  .nav-item:hover{background:rgba(255,255,255,0.1);color:white;}
+  .nav-item.active{background:linear-gradient(135deg,var(--purple),var(--blue));color:white;box-shadow:0 4px 14px rgba(139,111,212,0.35);}
+  .nav-icon{font-size:18px;width:24px;text-align:center;}
+  .sidebar-bottom{padding:16px 12px;}
+  .btn-logout{display:flex;align-items:center;gap:10px;padding:11px 14px;border-radius:12px;color:rgba(255,255,255,0.4);font-size:13px;font-weight:700;cursor:pointer;transition:all 0.2s;}
+  .btn-logout:hover{background:rgba(255,80,80,0.15);color:#FF8C8C;}
+  .main{margin-left:240px;flex:1;padding:36px;}
+
+  .profile-header{background:linear-gradient(160deg,#7C5CBF 0%,#4EAED4 60%,#3DBFA0 100%);border-radius:24px;padding:40px;display:flex;align-items:flex-end;gap:30px;margin-bottom:28px;position:relative;overflow:hidden;}
+  .profile-header::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.06'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E");}
+  .avatar-big{width:90px;height:90px;border-radius:50%;background:rgba(255,255,255,0.25);display:flex;align-items:center;justify-content:center;font-size:36px;font-weight:900;color:white;border:4px solid rgba(255,255,255,0.5);flex-shrink:0;}
+  .profile-info .name{font-size:28px;font-weight:900;color:white;}
+  .profile-info .username{font-size:15px;color:rgba(255,255,255,0.75);margin-top:4px;}
+  .profile-badges{display:flex;gap:10px;margin-top:12px;flex-wrap:wrap;}
+  .badge{padding:5px 14px;border-radius:20px;font-size:12px;font-weight:800;background:rgba(255,255,255,0.2);color:white;backdrop-filter:blur(4px);}
+  .profile-actions{margin-left:auto;display:flex;gap:10px;}
+  .btn-edit{padding:10px 20px;border-radius:12px;border:2px solid rgba(255,255,255,0.5);background:transparent;color:white;font-family:'Nunito',sans-serif;font-size:13px;font-weight:800;cursor:pointer;transition:0.2s;}
+  .btn-edit:hover{background:rgba(255,255,255,0.2);}
+
+  .profile-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+  .card{background:white;border-radius:20px;padding:24px;box-shadow:0 4px 18px rgba(100,80,200,0.07);}
+  .card-title{font-size:16px;font-weight:900;color:var(--dark);display:flex;align-items:center;gap:8px;margin-bottom:18px;}
+
+  /* STATS */
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .stat-tile{background:var(--light);border-radius:16px;padding:16px;text-align:center;}
+  .stat-tile .num{font-size:26px;font-weight:900;color:var(--dark);}
+  .stat-tile .lbl{font-size:11px;color:var(--mid);font-weight:700;margin-top:4px;}
+  .stat-tile .emoji{font-size:20px;margin-bottom:6px;}
+
+  /* ACHIEVEMENTS */
+  .achievements-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;}
+  .achievement{text-align:center;padding:14px 8px;background:var(--light);border-radius:14px;transition:0.2s;}
+  .achievement:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(100,80,200,0.1);}
+  .achievement.locked{opacity:0.35;filter:grayscale(1);}
+  .ach-icon{font-size:28px;margin-bottom:6px;}
+  .ach-name{font-size:11px;font-weight:800;color:var(--dark);}
+  .ach-desc{font-size:10px;color:var(--mid);margin-top:2px;}
+
+  /* EDIT FORM */
+  .form-group{margin-bottom:16px;}
+  .form-group label{display:block;font-size:12px;font-weight:800;color:var(--mid);margin-bottom:6px;}
+  .form-group input,.form-group select{width:100%;padding:11px 14px;border:2px solid var(--border);border-radius:12px;font-family:'Nunito',sans-serif;font-size:13px;color:var(--dark);background:var(--light);outline:none;}
+  .form-group input:focus,.form-group select:focus{border-color:var(--purple);}
+  .btn-save{width:100%;padding:12px;background:linear-gradient(135deg,var(--purple),var(--blue));color:white;border:none;border-radius:14px;font-family:'Nunito',sans-serif;font-size:15px;font-weight:800;cursor:pointer;transition:0.2s;}
+  .btn-save:hover{transform:translateY(-2px);box-shadow:0 6px 18px rgba(139,111,212,0.35);}
+
+  /* ACTIVITY */
+  .activity-list{display:flex;flex-direction:column;gap:10px;}
+  .activity-item{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--light);border-radius:12px;}
+  .act-icon{font-size:20px;width:30px;text-align:center;}
+  .act-body{flex:1;}
+  .act-title{font-size:13px;font-weight:700;color:var(--dark);}
+  .act-time{font-size:11px;color:var(--mid);margin-top:2px;}
+  .act-pts{font-size:12px;font-weight:800;color:var(--teal);background:#E8FBF5;padding:3px 10px;border-radius:8px;}
+
+  /* PROGRESS */
+  .goals-list{display:flex;flex-direction:column;gap:14px;}
+  .goal-item .goal-header{display:flex;justify-content:space-between;margin-bottom:6px;}
+  .goal-name{font-size:13px;font-weight:700;color:var(--dark);}
+  .goal-pct{font-size:13px;font-weight:800;color:var(--purple);}
+  .goal-bar{height:8px;background:var(--light);border-radius:6px;overflow:hidden;}
+  .goal-fill{height:100%;border-radius:6px;}
+
+  @media(max-width:1100px){.profile-grid{grid-template-columns:1fr 1fr;}}
+  @media(max-width:768px){
+    .sidebar{width:64px;}
+    .logo-text,.nav-item span:last-child,.nav-label,.btn-logout span{display:none;}
+    .main{margin-left:64px;padding:20px 16px;}
+    .profile-grid{grid-template-columns:1fr;}
+    .profile-header{flex-direction:column;align-items:flex-start;}
+    .profile-actions{margin-left:0;}
+  }
+</style>
+</head>
+<body>
+<nav class="sidebar">
+  <div class="sidebar-logo"><span class="logo-icon">📚</span><span class="logo-text">StudyHub</span></div>
+  <div class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item"><span class="nav-icon">🏠</span><span>Dashboard</span></a>
+    <a href="focus.html" class="nav-item"><span class="nav-icon">🎯</span><span>Focus Mode</span></a>
+    <a href="community.html" class="nav-item"><span class="nav-icon">💬</span><span>Community</span></a>
+    <a href="profile.html" class="nav-item active"><span class="nav-icon">👤</span><span>Profile</span></a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="btn-logout" onclick="logout()"><span>🚪</span><span>Log Out</span></div>
+  </div>
+</nav>
+<main class="main">
+
+  <div class="profile-header">
+    <div class="avatar-big" id="bigAvatar">?</div>
+    <div class="profile-info">
+      <div class="name" id="profileName">Loading...</div>
+      <div class="username" id="profileUsername">@username</div>
+      <div class="profile-badges">
+        <span class="badge" id="profileField">Student</span>
+        <span class="badge" id="profileLocation">🌍 Earth</span>
+        <span class="badge" id="profileJoined">📅 Joined</span>
+      </div>
+    </div>
+    <div class="profile-actions">
+      <button class="btn-edit" onclick="toggleEdit()">✏️ Edit Profile</button>
+    </div>
+  </div>
+
+  <div class="profile-grid">
+
+    <!-- STATS -->
+    <div class="card">
+      <div class="card-title">📊 Study Stats</div>
+      <div class="stat-grid">
+        <div class="stat-tile"><div class="emoji">⏱️</div><div class="num" id="pStatHours">0h</div><div class="lbl">Total Study Time</div></div>
+        <div class="stat-tile"><div class="emoji">✅</div><div class="num" id="pStatTasks">0</div><div class="lbl">Tasks Completed</div></div>
+        <div class="stat-tile"><div class="emoji">🔥</div><div class="num" id="pStatStreak">1</div><div class="lbl">Day Streak</div></div>
+        <div class="stat-tile"><div class="emoji">🍅</div><div class="num" id="pStatSessions">0</div><div class="lbl">Pomodoro Sessions</div></div>
+      </div>
+    </div>
+
+    <!-- ACHIEVEMENTS -->
+    <div class="card">
+      <div class="card-title">🏆 Achievements</div>
+      <div class="achievements-grid" id="achievementsGrid">
+        <div class="achievement"><div class="ach-icon">🌱</div><div class="ach-name">First Step</div><div class="ach-desc">Joined StudyHub</div></div>
+        <div class="achievement locked"><div class="ach-icon">🔥</div><div class="ach-name">On Fire</div><div class="ach-desc">7-day streak</div></div>
+        <div class="achievement locked"><div class="ach-icon">⏰</div><div class="ach-name">Dedicated</div><div class="ach-desc">10hrs studied</div></div>
+        <div class="achievement locked"><div class="ach-icon">💬</div><div class="ach-name">Helper</div><div class="ach-desc">10 messages sent</div></div>
+        <div class="achievement locked"><div class="ach-icon">📚</div><div class="ach-name">Bookworm</div><div class="ach-desc">30 tasks done</div></div>
+        <div class="achievement locked"><div class="ach-icon">🌍</div><div class="ach-name">Global</div><div class="ach-desc">Chat in 3 channels</div></div>
+      </div>
+    </div>
+
+    <!-- EDIT PROFILE -->
+    <div class="card" id="editCard">
+      <div class="card-title">✏️ Edit Profile</div>
+      <div class="form-group"><label>First Name</label><input type="text" id="editFirst" placeholder="First name"></div>
+      <div class="form-group"><label>Last Name</label><input type="text" id="editLast" placeholder="Last name"></div>
+      <div class="form-group"><label>Location</label><input type="text" id="editLocation" placeholder="Country or City"></div>
+      <div class="form-group"><label>Study Field</label>
+        <select id="editField">
+          <option>Science & Math</option><option>Engineering</option><option>Humanities</option>
+          <option>Commerce</option><option>Medicine</option><option>Arts</option><option>Law</option><option>Other</option>
+        </select>
+      </div>
+      <button class="btn-save" onclick="saveProfile()">💾 Save Changes</button>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div class="card" style="grid-column:span 2">
+      <div class="card-title">⚡ Recent Activity</div>
+      <div class="activity-list" id="activityList"></div>
+    </div>
+
+    <!-- GOALS -->
+    <div class="card">
+      <div class="card-title">🎯 Weekly Goals</div>
+      <div class="goals-list">
+        <div class="goal-item">
+          <div class="goal-header"><span class="goal-name">Study 10 hrs this week</span><span class="goal-pct" id="g1">0%</span></div>
+          <div class="goal-bar"><div class="goal-fill" id="g1b" style="background:linear-gradient(90deg,#8B6FD4,#B08FFF)"></div></div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header"><span class="goal-name">Complete 20 tasks</span><span class="goal-pct" id="g2">0%</span></div>
+          <div class="goal-bar"><div class="goal-fill" id="g2b" style="background:linear-gradient(90deg,#3DBFA0,#70F0CC)"></div></div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header"><span class="goal-name">5 Pomodoro sessions / day</span><span class="goal-pct" id="g3">0%</span></div>
+          <div class="goal-bar"><div class="goal-fill" id="g3b" style="background:linear-gradient(90deg,#FFD166,#FF9F45)"></div></div>
+        </div>
+        <div class="goal-item">
+          <div class="goal-header"><span class="goal-name">Join community chat</span><span class="goal-pct">100%</span></div>
+          <div class="goal-bar"><div class="goal-fill" style="width:100%;background:linear-gradient(90deg,#5BA3D9,#8CCFFF)"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+const currentUser = JSON.parse(localStorage.getItem('studyhub_current') || 'null');
+if (!currentUser) { window.location.href='login.html'; }
+
+function loadProfile() {
+  const u = currentUser;
+  document.getElementById('bigAvatar').textContent = u.first[0]+(u.last[0]||'');
+  document.getElementById('profileName').textContent = u.first+' '+u.last;
+  document.getElementById('profileUsername').textContent = '@'+(u.username || u.first.toLowerCase());
+  document.getElementById('profileField').textContent = u.field || '📚 Student';
+  document.getElementById('profileLocation').textContent = '📍 '+(u.location || 'World');
+  document.getElementById('profileJoined').textContent = '📅 '+(u.joined ? new Date(u.joined).toLocaleDateString('en-US',{month:'short',year:'numeric'}) : 'New');
+  document.getElementById('editFirst').value = u.first;
+  document.getElementById('editLast').value = u.last;
+  document.getElementById('editLocation').value = u.location||'';
+  document.getElementById('editField').value = u.field||'';
+
+  const stats = JSON.parse(localStorage.getItem('studyhub_stats')||'{}');
+  const todos = JSON.parse(localStorage.getItem('studyhub_todos')||'[]');
+  const streak = JSON.parse(localStorage.getItem('studyhub_streak')||'{"count":1}');
+  const secs = stats.seconds||0;
+  const h = Math.floor(secs/3600), m = Math.floor((secs%3600)/60);
+  document.getElementById('pStatHours').textContent = h>0?h+'h '+m+'m':m+'m';
+  document.getElementById('pStatTasks').textContent = todos.filter(t=>t.done).length;
+  document.getElementById('pStatStreak').textContent = streak.count||1;
+  document.getElementById('pStatSessions').textContent = stats.sessions||0;
+
+  const hPct = Math.min(100, Math.round(secs/36));
+  const tPct = Math.min(100, Math.round((todos.filter(t=>t.done).length/20)*100));
+  const sPct = Math.min(100, Math.round(((stats.sessions||0)/5)*100));
+  document.getElementById('g1').textContent=hPct+'%'; document.getElementById('g1b').style.width=hPct+'%';
+  document.getElementById('g2').textContent=tPct+'%'; document.getElementById('g2b').style.width=tPct+'%';
+  document.getElementById('g3').textContent=sPct+'%'; document.getElementById('g3b').style.width=sPct+'%';
+
+  // ACHIEVEMENTS
+  const achGrid = document.getElementById('achievementsGrid');
+  const items = achGrid.querySelectorAll('.achievement');
+  items[0].classList.remove('locked');
+  if (streak.count>=7) items[1].classList.remove('locked');
+  if (secs>=36000) items[2].classList.remove('locked');
+  if (todos.filter(t=>t.done).length>=10) items[4].classList.remove('locked');
+}
+
+const activities = [
+  {icon:'⏱️',title:'Completed a Pomodoro session',time:'Today, 10:00 AM',pts:'+10 pts'},
+  {icon:'✅',title:'Finished 3 tasks from To-Do list',time:'Today, 9:30 AM',pts:'+15 pts'},
+  {icon:'💬',title:'Posted in #general community',time:'Today, 9:15 AM',pts:'+5 pts'},
+  {icon:'🔒',title:'Used Focus Lock mode',time:'Yesterday, 8:00 PM',pts:'+20 pts'},
+  {icon:'🎵',title:'Studied with Ocean Waves music',time:'Yesterday, 7:00 PM',pts:'+5 pts'},
+];
+function renderActivity() {
+  const list = document.getElementById('activityList');
+  activities.forEach(a => {
+    const div = document.createElement('div'); div.className='activity-item';
+    div.innerHTML=`<span class="act-icon">${a.icon}</span><div class="act-body"><div class="act-title">${a.title}</div><div class="act-time">${a.time}</div></div><span class="act-pts">${a.pts}</span>`;
+    list.appendChild(div);
+  });
+}
+
+function saveProfile() {
+  currentUser.first = document.getElementById('editFirst').value;
+  currentUser.last = document.getElementById('editLast').value;
+  currentUser.location = document.getElementById('editLocation').value;
+  currentUser.field = document.getElementById('editField').value;
+  localStorage.setItem('studyhub_current', JSON.stringify(currentUser));
+  const users = JSON.parse(localStorage.getItem('studyhub_users')||'[]');
+  const idx = users.findIndex(u=>u.email===currentUser.email);
+  if (idx>=0) { users[idx]=currentUser; localStorage.setItem('studyhub_users',JSON.stringify(users)); }
+  loadProfile();
+  const btn = document.querySelector('.btn-save');
+  btn.textContent='✅ Saved!';
+  setTimeout(()=>btn.textContent='💾 Save Changes',2000);
+}
+function toggleEdit() {
+  document.getElementById('editCard').scrollIntoView({behavior:'smooth'});
+}
+function logout() { localStorage.removeItem('studyhub_current'); window.location.href='login.html'; }
+
+loadProfile();
+renderActivity();
+</script>
+</body>
+</html>

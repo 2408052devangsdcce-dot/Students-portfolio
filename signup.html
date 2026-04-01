@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyHub — Sign Up</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --mint: #A8EDDA; --sky: #B8D8F8; --lavender: #D4C5F9;
+    --peach: #FFD6C0; --yellow: #FFF3B0; --coral: #FF8C7A;
+    --purple: #8B6FD4; --teal: #3DBFA0; --blue: #5BA3D9;
+    --dark: #2C2C3E; --mid: #4A4A6A; --light: #F7F5FF; --white: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: linear-gradient(135deg, #FFF5F0 0%, #F0EBFF 40%, #E8FFF7 100%);
+    min-height: 100vh; display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .bg-blobs { position: fixed; inset: 0; pointer-events: none; z-index: 0; }
+  .blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.5; animation: float 8s ease-in-out infinite; }
+  .blob-1 { width: 300px; height: 300px; background: var(--peach); top: -60px; right: -60px; animation-delay: 0s; }
+  .blob-2 { width: 250px; height: 250px; background: var(--lavender); bottom: -50px; left: -50px; animation-delay: 2.5s; }
+  .blob-3 { width: 180px; height: 180px; background: var(--mint); top: 40%; left: 20%; animation-delay: 1s; }
+  @keyframes float { 0%,100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+  .container {
+    position: relative; z-index: 1;
+    display: flex; gap: 0;
+    background: white; border-radius: 28px;
+    box-shadow: 0 30px 80px rgba(200,100,80,0.12);
+    overflow: hidden; width: 900px; max-width: 95vw;
+  }
+  .brand-panel {
+    background: linear-gradient(160deg, #F76B5B 0%, #F9A87A 40%, #FFC85E 100%);
+    flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    padding: 50px 40px; color: white; position: relative; overflow: hidden;
+  }
+  .brand-panel::before {
+    content: ''; position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  }
+  .brand-logo { font-size: 52px; margin-bottom: 12px; }
+  .brand-title { font-size: 30px; font-weight: 900; margin-bottom: 10px; }
+  .brand-subtitle { font-size: 14px; opacity: 0.9; text-align: center; line-height: 1.7; max-width: 220px; }
+  .steps { margin-top: 36px; display: flex; flex-direction: column; gap: 14px; }
+  .step { display: flex; align-items: flex-start; gap: 12px; }
+  .step-num {
+    width: 28px; height: 28px; border-radius: 50%;
+    background: rgba(255,255,255,0.25); color: white;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 800; flex-shrink: 0; margin-top: 1px;
+  }
+  .step-text { font-size: 13px; font-weight: 600; line-height: 1.5; }
+  .form-panel { flex: 1; padding: 45px 45px; display: flex; flex-direction: column; justify-content: center; overflow-y: auto; }
+  .form-header h2 { font-size: 26px; font-weight: 900; color: var(--dark); }
+  .form-header p { color: var(--mid); font-size: 14px; margin-top: 5px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+  .form-group { margin-top: 18px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { display: block; font-size: 13px; font-weight: 700; color: var(--mid); margin-bottom: 7px; }
+  .form-group input, .form-group select {
+    width: 100%; padding: 12px 14px;
+    border: 2px solid #E8E4F5; border-radius: 13px;
+    font-family: 'Nunito', sans-serif; font-size: 13px;
+    color: var(--dark); background: var(--light); outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+  .form-group input:focus, .form-group select:focus {
+    border-color: var(--coral);
+    box-shadow: 0 0 0 4px rgba(255,140,122,0.12);
+    background: white;
+  }
+  .btn-signup {
+    margin-top: 24px; width: 100%; padding: 14px;
+    background: linear-gradient(135deg, #F76B5B, #F9A87A);
+    color: white; border: none; border-radius: 14px;
+    font-family: 'Nunito', sans-serif; font-size: 16px; font-weight: 800;
+    cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: 0 6px 20px rgba(247,107,91,0.35);
+  }
+  .btn-signup:hover { transform: translateY(-2px); box-shadow: 0 10px 28px rgba(247,107,91,0.45); }
+  .switch-link { text-align: center; font-size: 13px; color: var(--mid); margin-top: 16px; }
+  .switch-link a { color: #F76B5B; font-weight: 800; text-decoration: none; }
+  .switch-link a:hover { text-decoration: underline; }
+  @media (max-width: 600px) {
+    .brand-panel { display: none; }
+    .form-panel { padding: 40px 24px; }
+    .form-grid { grid-template-columns: 1fr; }
+    .form-group.full { grid-column: 1; }
+  }
+</style>
+</head>
+<body>
+<div class="bg-blobs">
+  <div class="blob blob-1"></div>
+  <div class="blob blob-2"></div>
+  <div class="blob blob-3"></div>
+</div>
+<div class="container">
+  <div class="brand-panel">
+    <div class="brand-logo">🎓</div>
+    <div class="brand-title">Join StudyHub</div>
+    <div class="brand-subtitle">Start your journey to better focus and smarter studying today.</div>
+    <div class="steps">
+      <div class="step"><div class="step-num">1</div><div class="step-text">Create your free account</div></div>
+      <div class="step"><div class="step-num">2</div><div class="step-text">Set your study goals and subjects</div></div>
+      <div class="step"><div class="step-num">3</div><div class="step-text">Connect with students worldwide</div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-text">Track progress and stay consistent</div></div>
+    </div>
+  </div>
+  <div class="form-panel">
+    <div class="form-header">
+      <h2>Create Account ✨</h2>
+      <p>It's free and takes less than a minute</p>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="firstName" placeholder="Alex">
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="lastName" placeholder="Smith">
+      </div>
+      <div class="form-group full">
+        <label>Email Address</label>
+        <input type="email" id="signupEmail" placeholder="you@email.com">
+      </div>
+      <div class="form-group full">
+        <label>Username</label>
+        <input type="text" id="username" placeholder="studystar99">
+      </div>
+      <div class="form-group">
+        <label>Country / State</label>
+        <input type="text" id="location" placeholder="e.g. India / New York">
+      </div>
+      <div class="form-group">
+        <label>Study Field</label>
+        <select id="field">
+          <option value="">Select...</option>
+          <option>Science & Math</option>
+          <option>Engineering</option>
+          <option>Humanities</option>
+          <option>Commerce</option>
+          <option>Medicine</option>
+          <option>Arts</option>
+          <option>Law</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" id="signupPass" placeholder="Min. 6 characters">
+      </div>
+      <div class="form-group">
+        <label>Confirm Password</label>
+        <input type="password" id="confirmPass" placeholder="Repeat password">
+      </div>
+    </div>
+    <button class="btn-signup" onclick="handleSignup()">Create Account →</button>
+    <div class="switch-link">Already have an account? <a href="login.html">Log in</a></div>
+  </div>
+</div>
+<script>
+function handleSignup() {
+  const first = document.getElementById('firstName').value.trim();
+  const last = document.getElementById('lastName').value.trim();
+  const email = document.getElementById('signupEmail').value.trim();
+  const username = document.getElementById('username').value.trim();
+  const location = document.getElementById('location').value.trim();
+  const field = document.getElementById('field').value;
+  const pass = document.getElementById('signupPass').value;
+  const confirm = document.getElementById('confirmPass').value;
+  if (!first || !last || !email || !username || !pass) { alert('Please fill in all required fields.'); return; }
+  if (pass.length < 6) { alert('Password must be at least 6 characters.'); return; }
+  if (pass !== confirm) { alert('Passwords do not match.'); return; }
+  const users = JSON.parse(localStorage.getItem('studyhub_users') || '[]');
+  if (users.find(u => u.email === email)) { alert('An account with this email already exists.'); return; }
+  const newUser = { first, last, email, username, location, field, password: pass, joined: new Date().toISOString() };
+  users.push(newUser);
+  localStorage.setItem('studyhub_users', JSON.stringify(users));
+  localStorage.setItem('studyhub_current', JSON.stringify(newUser));
+  window.location.href = 'dashboard.html';
+}
+</script>
+</body>
+</html>

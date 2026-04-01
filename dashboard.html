@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>StudyHub — Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --purple: #8B6FD4; --teal: #3DBFA0; --blue: #5BA3D9;
+    --coral: #FF8C7A; --yellow: #FFD166; --green: #4ECDC4;
+    --dark: #2C2C3E; --mid: #5A5A7A; --light: #F7F5FF;
+    --white: #FFFFFF; --border: #EAE6F8;
+    --sidebar-bg: #2C2C3E;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Nunito', sans-serif; background: #F0EDFB; display: flex; min-height: 100vh; overflow-x: hidden; }
+
+  /* SIDEBAR */
+  .sidebar {
+    width: 240px; background: var(--sidebar-bg); min-height: 100vh;
+    display: flex; flex-direction: column; position: fixed; left: 0; top: 0; bottom: 0; z-index: 100;
+    transition: width 0.3s;
+  }
+  .sidebar-logo { padding: 28px 24px 20px; display: flex; align-items: center; gap: 12px; }
+  .logo-icon { font-size: 28px; }
+  .logo-text { font-size: 20px; font-weight: 900; color: white; letter-spacing: 0.3px; }
+  .sidebar-user { padding: 16px 20px; margin: 0 12px 12px; background: rgba(255,255,255,0.07); border-radius: 14px; }
+  .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, var(--purple), var(--teal)); display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: 800; color: white; margin-bottom: 8px; }
+  .user-name { font-size: 14px; font-weight: 800; color: white; }
+  .user-field { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 2px; }
+  .sidebar-nav { flex: 1; padding: 8px 12px; }
+  .nav-label { font-size: 10px; font-weight: 800; color: rgba(255,255,255,0.3); text-transform: uppercase; letter-spacing: 1.2px; padding: 0 12px; margin: 16px 0 8px; }
+  .nav-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 11px 14px; border-radius: 12px;
+    color: rgba(255,255,255,0.6); font-size: 14px; font-weight: 700;
+    cursor: pointer; transition: all 0.2s; text-decoration: none; margin-bottom: 2px;
+  }
+  .nav-item:hover { background: rgba(255,255,255,0.1); color: white; }
+  .nav-item.active { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; box-shadow: 0 4px 14px rgba(139,111,212,0.35); }
+  .nav-icon { font-size: 18px; width: 24px; text-align: center; }
+  .sidebar-bottom { padding: 16px 12px; }
+  .btn-logout { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; color: rgba(255,255,255,0.4); font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+  .btn-logout:hover { background: rgba(255,80,80,0.15); color: #FF8C8C; }
+
+  /* MAIN */
+  .main { margin-left: 240px; flex: 1; padding: 30px; min-height: 100vh; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+  .topbar-left h1 { font-size: 24px; font-weight: 900; color: var(--dark); }
+  .topbar-left p { color: var(--mid); font-size: 14px; margin-top: 2px; }
+  .topbar-right { display: flex; align-items: center; gap: 12px; }
+  .date-badge { background: white; border-radius: 12px; padding: 8px 16px; font-size: 13px; font-weight: 700; color: var(--mid); box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .streak-badge { background: linear-gradient(135deg, #FFD166, #FF9F45); border-radius: 12px; padding: 8px 16px; font-size: 13px; font-weight: 800; color: white; box-shadow: 0 2px 10px rgba(255,144,69,0.35); }
+
+  /* GRID */
+  .dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto;
+    gap: 20px;
+  }
+  .card {
+    background: white; border-radius: 20px;
+    padding: 22px; box-shadow: 0 4px 20px rgba(100,80,200,0.07);
+    position: relative; overflow: hidden;
+  }
+  .card-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; }
+  .card-title { font-size: 16px; font-weight: 900; color: var(--dark); display: flex; align-items: center; gap: 8px; }
+  .card-icon { font-size: 20px; }
+  .card-action { font-size: 12px; font-weight: 700; color: var(--purple); cursor: pointer; background: var(--light); padding: 5px 10px; border-radius: 8px; }
+  .card-action:hover { background: var(--purple); color: white; transition: 0.2s; }
+
+  /* STATS ROW */
+  .stats-row { display: grid; grid-template-columns: repeat(4,1fr); gap: 16px; margin-bottom: 20px; }
+  .stat-card {
+    background: white; border-radius: 18px; padding: 18px 20px;
+    box-shadow: 0 4px 16px rgba(100,80,200,0.07);
+  }
+  .stat-num { font-size: 28px; font-weight: 900; color: var(--dark); }
+  .stat-label { font-size: 12px; color: var(--mid); font-weight: 600; margin-top: 4px; }
+  .stat-icon { font-size: 22px; margin-bottom: 8px; }
+
+  /* TIMER CARD */
+  .timer-card { grid-column: span 1; }
+  .timer-display {
+    text-align: center; padding: 16px 0 12px;
+    font-size: 56px; font-weight: 900; color: var(--dark);
+    font-variant-numeric: tabular-nums; line-height: 1;
+    background: linear-gradient(135deg, var(--purple), var(--teal));
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  }
+  .timer-mode-tabs { display: flex; gap: 6px; margin-bottom: 14px; }
+  .timer-tab {
+    flex: 1; padding: 7px; border-radius: 10px; border: none;
+    font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+    cursor: pointer; background: var(--light); color: var(--mid); transition: 0.2s;
+  }
+  .timer-tab.active { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; box-shadow: 0 3px 10px rgba(139,111,212,0.3); }
+  .timer-controls { display: flex; gap: 10px; justify-content: center; margin-top: 12px; }
+  .timer-btn {
+    padding: 10px 22px; border-radius: 12px; border: none;
+    font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+    cursor: pointer; transition: 0.2s;
+  }
+  .timer-btn.primary { background: linear-gradient(135deg, var(--purple), var(--blue)); color: white; box-shadow: 0 4px 14px rgba(139,111,212,0.3); }
+  .timer-btn.secondary { background: var(--light); color: var(--mid); }
+  .timer-btn:hover { transform: translateY(-1px); }
+  .timer-progress { margin-top: 14px; height: 8px; background: #F0EDFB; border-radius: 6px; overflow: hidden; }
+  .timer-bar { height: 100%; background: linear-gradient(90deg, var(--purple), var(--teal)); border-radius: 6px; transition: width 1s linear; width: 100%; }
+  .lock-btn {
+    margin-top: 14px; width: 100%; padding: 10px; border-radius: 12px; border: none;
+    background: linear-gradient(135deg, #FF6B6B, #FF9F45); color: white;
+    font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800;
+    cursor: pointer; transition: 0.2s;
+  }
+  .lock-btn:hover { opacity: 0.9; }
+
+  /* TODO */
+  .todo-card { grid-column: span 1; }
+  .todo-input-row { display: flex; gap: 8px; margin-bottom: 14px; }
+  .todo-input {
+    flex: 1; padding: 10px 14px; border: 2px solid var(--border);
+    border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px;
+    color: var(--dark); background: var(--light); outline: none;
+  }
+  .todo-input:focus { border-color: var(--purple); }
+  .btn-add {
+    padding: 10px 16px; background: var(--purple); color: white; border: none;
+    border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 900;
+    cursor: pointer; transition: 0.2s;
+  }
+  .btn-add:hover { background: #7559C3; }
+  .todo-list { max-height: 220px; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; }
+  .todo-item {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 12px; background: var(--light); border-radius: 12px;
+    animation: slideIn 0.2s ease;
+  }
+  @keyframes slideIn { from { opacity: 0; transform: translateY(-8px); } to { opacity: 1; transform: translateY(0); } }
+  .todo-check {
+    width: 20px; height: 20px; border: 2.5px solid var(--border); border-radius: 6px;
+    cursor: pointer; transition: 0.2s; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  }
+  .todo-check.done { background: var(--teal); border-color: var(--teal); color: white; font-size: 12px; }
+  .todo-text { flex: 1; font-size: 13px; font-weight: 600; color: var(--dark); }
+  .todo-text.done { text-decoration: line-through; color: #AAA; }
+  .todo-del { color: #CCC; cursor: pointer; font-size: 16px; }
+  .todo-del:hover { color: var(--coral); }
+
+  /* QUICK NOTES */
+  .notes-card { grid-column: span 1; }
+  .notes-area {
+    width: 100%; height: 180px; border: 2px solid var(--border);
+    border-radius: 14px; padding: 14px; font-family: 'Nunito', sans-serif;
+    font-size: 13px; color: var(--dark); background: #FFFEF7;
+    resize: none; outline: none; line-height: 1.6;
+  }
+  .notes-area:focus { border-color: var(--yellow); }
+  .notes-footer { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+  .notes-count { font-size: 11px; color: #AAA; font-weight: 600; }
+  .notes-save {
+    padding: 7px 14px; background: var(--yellow); color: #8A6A00; border: none;
+    border-radius: 10px; font-family: 'Nunito', sans-serif; font-size: 12px; font-weight: 800;
+    cursor: pointer; transition: 0.2s;
+  }
+  .notes-save:hover { background: #FFCA28; }
+
+  /* MUSIC CARD */
+  .music-card { grid-column: span 1; }
+  .music-tracks { display: flex; flex-direction: column; gap: 8px; }
+  .music-track {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 14px; background: var(--light); border-radius: 14px;
+    cursor: pointer; transition: 0.2s;
+  }
+  .music-track:hover { background: #EDE8F9; }
+  .music-track.playing { background: linear-gradient(135deg, #EDE8F9, #E8F8F4); border: 2px solid var(--purple); }
+  .track-icon { font-size: 22px; }
+  .track-info { flex: 1; }
+  .track-name { font-size: 13px; font-weight: 700; color: var(--dark); }
+  .track-type { font-size: 11px; color: var(--mid); margin-top: 1px; }
+  .track-play { width: 30px; height: 30px; border-radius: 50%; background: var(--purple); display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; }
+  .music-visualizer { display: flex; gap: 3px; align-items: flex-end; height: 20px; margin-top: 12px; justify-content: center; }
+  .vis-bar { width: 4px; background: var(--purple); border-radius: 2px; opacity: 0.4; }
+  .vis-bar.active { opacity: 1; animation: visAnim 0.6s ease-in-out infinite; }
+  @keyframes visAnim { 0%,100% { height: 4px; } 50% { height: 18px; } }
+
+  /* TODAY'S TASKS */
+  .tasks-card { grid-column: span 2; }
+  .tasks-list { display: flex; flex-direction: column; gap: 10px; }
+  .task-item {
+    display: flex; align-items: center; gap: 14px;
+    padding: 12px 16px; background: var(--light); border-radius: 14px;
+  }
+  .task-priority {
+    width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+  }
+  .priority-high { background: var(--coral); }
+  .priority-medium { background: var(--yellow); }
+  .priority-low { background: var(--teal); }
+  .task-body { flex: 1; }
+  .task-name { font-size: 14px; font-weight: 700; color: var(--dark); }
+  .task-sub { font-size: 12px; color: var(--mid); margin-top: 2px; }
+  .task-due { font-size: 12px; font-weight: 700; color: var(--mid); background: white; padding: 4px 10px; border-radius: 8px; }
+  .add-task-row { display: flex; gap: 8px; margin-top: 14px; }
+  .add-task-input {
+    flex: 1; padding: 10px 14px; border: 2px solid var(--border);
+    border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 13px;
+    color: var(--dark); background: var(--light); outline: none;
+  }
+  .add-task-input:focus { border-color: var(--teal); }
+  .task-priority-sel {
+    padding: 10px 12px; border: 2px solid var(--border); border-radius: 12px;
+    font-family: 'Nunito', sans-serif; font-size: 13px; color: var(--dark); background: var(--light); outline: none;
+  }
+  .btn-add-task {
+    padding: 10px 16px; background: var(--teal); color: white; border: none;
+    border-radius: 12px; font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800;
+    cursor: pointer; transition: 0.2s;
+  }
+  .btn-add-task:hover { background: #30A88A; }
+
+  /* PROGRESS */
+  .progress-card { grid-column: span 1; }
+  .subject-list { display: flex; flex-direction: column; gap: 14px; }
+  .subject-item .subject-header { display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .subject-name { font-size: 13px; font-weight: 700; color: var(--dark); }
+  .subject-pct { font-size: 13px; font-weight: 800; color: var(--purple); }
+  .subject-bar { height: 8px; background: #F0EDFB; border-radius: 6px; overflow: hidden; }
+  .subject-fill { height: 100%; border-radius: 6px; transition: width 1s ease; }
+
+  /* LOCK OVERLAY */
+  #lockOverlay {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: linear-gradient(160deg, #1A1030 0%, #0A2030 60%, #0A1A20 100%);
+    flex-direction: column; align-items: center; justify-content: center;
+    color: white;
+  }
+  #lockOverlay.active { display: flex; }
+  .lock-display { font-size: 80px; margin-bottom: 20px; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{transform:scale(1);}50%{transform:scale(1.08);} }
+  .lock-title { font-size: 32px; font-weight: 900; margin-bottom: 10px; }
+  .lock-subtitle { font-size: 16px; opacity: 0.7; margin-bottom: 40px; }
+  .lock-timer { font-size: 72px; font-weight: 900; font-variant-numeric: tabular-nums;
+    background: linear-gradient(135deg, #A0D8EF, #70F0CC); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  .lock-tip { margin-top: 30px; font-size: 13px; opacity: 0.4; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 5px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #D4C5F9; border-radius: 10px; }
+
+  @media (max-width: 1100px) {
+    .dashboard-grid { grid-template-columns: repeat(2, 1fr); }
+    .tasks-card { grid-column: span 2; }
+  }
+  @media (max-width: 768px) {
+    .sidebar { width: 64px; }
+    .logo-text, .nav-item span:last-child, .sidebar-user, .nav-label, .btn-logout span { display: none; }
+    .main { margin-left: 64px; padding: 20px 16px; }
+    .dashboard-grid { grid-template-columns: 1fr; }
+    .tasks-card, .timer-card, .todo-card, .notes-card, .music-card, .progress-card { grid-column: span 1; }
+    .stats-row { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <span class="logo-icon">📚</span>
+    <span class="logo-text">StudyHub</span>
+  </div>
+  <div class="sidebar-user" id="sidebarUser">
+    <div class="user-avatar" id="userAvatar">?</div>
+    <div class="user-name" id="userName">Loading...</div>
+    <div class="user-field" id="userField">—</div>
+  </div>
+  <div class="sidebar-nav">
+    <div class="nav-label">Main</div>
+    <a href="dashboard.html" class="nav-item active">
+      <span class="nav-icon">🏠</span><span>Dashboard</span>
+    </a>
+    <a href="focus.html" class="nav-item">
+      <span class="nav-icon">🎯</span><span>Focus Mode</span>
+    </a>
+    <a href="community.html" class="nav-item">
+      <span class="nav-icon">💬</span><span>Community</span>
+    </a>
+    <a href="profile.html" class="nav-item">
+      <span class="nav-icon">👤</span><span>Profile</span>
+    </a>
+  </div>
+  <div class="sidebar-bottom">
+    <div class="btn-logout" onclick="logout()">
+      <span>🚪</span><span>Log Out</span>
+    </div>
+  </div>
+</nav>
+
+<!-- LOCK OVERLAY -->
+<div id="lockOverlay">
+  <div class="lock-display">🔒</div>
+  <div class="lock-title">Focus Mode Active</div>
+  <div class="lock-subtitle">Put your phone down. You've got this! 💪</div>
+  <div class="lock-timer" id="lockCountdown">25:00</div>
+  <div class="lock-tip">Screen locked until timer ends</div>
+</div>
+
+<!-- MAIN -->
+<main class="main">
+  <div class="topbar">
+    <div class="topbar-left">
+      <h1>Good day! 🌤️</h1>
+      <p id="greetSubtitle">Let's make today count.</p>
+    </div>
+    <div class="topbar-right">
+      <div class="date-badge" id="dateBadge">—</div>
+      <div class="streak-badge">🔥 <span id="streakCount">1</span> Day Streak</div>
+    </div>
+  </div>
+
+  <!-- STATS -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon">⏱️</div>
+      <div class="stat-num" id="statHours">0h</div>
+      <div class="stat-label">Studied Today</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">✅</div>
+      <div class="stat-num" id="statTasks">0</div>
+      <div class="stat-label">Tasks Done</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">📝</div>
+      <div class="stat-num" id="statNotes">0</div>
+      <div class="stat-label">Notes Saved</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon">🎯</div>
+      <div class="stat-num" id="statSessions">0</div>
+      <div class="stat-label">Sessions</div>
+    </div>
+  </div>
+
+  <!-- DASHBOARD GRID -->
+  <div class="dashboard-grid">
+
+    <!-- STUDY TIMER -->
+    <div class="card timer-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">⏱️</span> Study Timer</div>
+      </div>
+      <div class="timer-mode-tabs">
+        <button class="timer-tab active" onclick="setMode(25,0,'Pomodoro')">Pomodoro</button>
+        <button class="timer-tab" onclick="setMode(15,0,'Short Break')">Short Break</button>
+        <button class="timer-tab" onclick="setMode(30,0,'Long Study')">Long Study</button>
+      </div>
+      <div class="timer-display" id="timerDisplay">25:00</div>
+      <div class="timer-progress"><div class="timer-bar" id="timerBar"></div></div>
+      <div class="timer-controls">
+        <button class="timer-btn secondary" onclick="resetTimer()">↺ Reset</button>
+        <button class="timer-btn primary" id="startBtn" onclick="toggleTimer()">▶ Start</button>
+      </div>
+      <button class="lock-btn" onclick="toggleLock()">🔒 Lock Screen & Focus</button>
+    </div>
+
+    <!-- TO-DO LIST -->
+    <div class="card todo-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">📋</span> To-Do List</div>
+        <span class="card-action" onclick="clearDone()">Clear Done</span>
+      </div>
+      <div class="todo-input-row">
+        <input class="todo-input" id="todoInput" placeholder="Add a task..." onkeydown="if(event.key==='Enter')addTodo()">
+        <button class="btn-add" onclick="addTodo()">+</button>
+      </div>
+      <div class="todo-list" id="todoList"></div>
+    </div>
+
+    <!-- QUICK NOTES -->
+    <div class="card notes-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">📓</span> Quick Notes</div>
+        <span class="card-action" onclick="saveNote()">Save</span>
+      </div>
+      <textarea class="notes-area" id="notesArea" placeholder="Jot down anything — formulas, ideas, reminders..."></textarea>
+      <div class="notes-footer">
+        <span class="notes-count" id="notesCount">0 chars</span>
+        <button class="notes-save" onclick="saveNote()">💾 Save Note</button>
+      </div>
+    </div>
+
+    <!-- STUDY MUSIC -->
+    <div class="card music-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">🎵</span> Study Music</div>
+      </div>
+      <div class="music-tracks" id="musicTracks">
+        <div class="music-track" onclick="playTrack(0)">
+          <span class="track-icon">🌊</span>
+          <div class="track-info"><div class="track-name">Ocean Waves</div><div class="track-type">Nature • Calm Focus</div></div>
+          <div class="track-play">▶</div>
+        </div>
+        <div class="music-track" onclick="playTrack(1)">
+          <span class="track-icon">🌧️</span>
+          <div class="track-info"><div class="track-name">Rain on Leaves</div><div class="track-type">Nature • Deep Focus</div></div>
+          <div class="track-play">▶</div>
+        </div>
+        <div class="music-track" onclick="playTrack(2)">
+          <span class="track-icon">☕</span>
+          <div class="track-info"><div class="track-name">Café Ambience</div><div class="track-type">Ambient • Lo-Fi Vibes</div></div>
+          <div class="track-play">▶</div>
+        </div>
+        <div class="music-track" onclick="playTrack(3)">
+          <span class="track-icon">🔔</span>
+          <div class="track-info"><div class="track-name">Tibetan Bowls</div><div class="track-type">Meditation • Binaural</div></div>
+          <div class="track-play">▶</div>
+        </div>
+      </div>
+      <div class="music-visualizer" id="visualizer">
+        <div class="vis-bar" style="height:8px;animation-delay:0s"></div>
+        <div class="vis-bar" style="height:14px;animation-delay:0.1s"></div>
+        <div class="vis-bar" style="height:6px;animation-delay:0.2s"></div>
+        <div class="vis-bar" style="height:18px;animation-delay:0.3s"></div>
+        <div class="vis-bar" style="height:10px;animation-delay:0.4s"></div>
+        <div class="vis-bar" style="height:16px;animation-delay:0.5s"></div>
+        <div class="vis-bar" style="height:8px;animation-delay:0.6s"></div>
+        <div class="vis-bar" style="height:12px;animation-delay:0.7s"></div>
+      </div>
+    </div>
+
+    <!-- TODAY'S TASKS -->
+    <div class="card tasks-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">📅</span> Today's Tasks</div>
+        <span class="card-action" onclick="clearTasks()">Clear All</span>
+      </div>
+      <div class="tasks-list" id="tasksList"></div>
+      <div class="add-task-row">
+        <input class="add-task-input" id="taskInput" placeholder="Add today's task..." onkeydown="if(event.key==='Enter')addTask()">
+        <select class="task-priority-sel" id="taskPriority">
+          <option value="high">🔴 High</option>
+          <option value="medium" selected>🟡 Medium</option>
+          <option value="low">🟢 Low</option>
+        </select>
+        <button class="btn-add-task" onclick="addTask()">+ Add</button>
+      </div>
+    </div>
+
+    <!-- PROGRESS -->
+    <div class="card progress-card">
+      <div class="card-header">
+        <div class="card-title"><span class="card-icon">📊</span> Study Progress</div>
+      </div>
+      <div class="subject-list" id="subjectList">
+        <div class="subject-item">
+          <div class="subject-header"><span class="subject-name">Mathematics</span><span class="subject-pct">72%</span></div>
+          <div class="subject-bar"><div class="subject-fill" style="width:72%;background:linear-gradient(90deg,#8B6FD4,#B08FFF)"></div></div>
+        </div>
+        <div class="subject-item">
+          <div class="subject-header"><span class="subject-name">Physics</span><span class="subject-pct">58%</span></div>
+          <div class="subject-bar"><div class="subject-fill" style="width:58%;background:linear-gradient(90deg,#3DBFA0,#70F0CC)"></div></div>
+        </div>
+        <div class="subject-item">
+          <div class="subject-header"><span class="subject-name">Chemistry</span><span class="subject-pct">45%</span></div>
+          <div class="subject-bar"><div class="subject-fill" style="width:45%;background:linear-gradient(90deg,#5BA3D9,#8CCFFF)"></div></div>
+        </div>
+        <div class="subject-item">
+          <div class="subject-header"><span class="subject-name">History</span><span class="subject-pct">88%</span></div>
+          <div class="subject-bar"><div class="subject-fill" style="width:88%;background:linear-gradient(90deg,#FFD166,#FF9F45)"></div></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<script>
+// AUTH CHECK
+const currentUser = JSON.parse(localStorage.getItem('studyhub_current') || 'null');
+if (!currentUser) { window.location.href = 'login.html'; }
+else {
+  document.getElementById('userName').textContent = currentUser.first + ' ' + currentUser.last;
+  document.getElementById('userField').textContent = currentUser.field || 'Student';
+  document.getElementById('userAvatar').textContent = currentUser.first[0] + (currentUser.last[0] || '');
+  const hour = new Date().getHours();
+  const greet = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening';
+  document.querySelector('.topbar-left h1').textContent = greet + ', ' + currentUser.first + '! 🌤️';
+}
+const now = new Date();
+document.getElementById('dateBadge').textContent = now.toLocaleDateString('en-US', { weekday:'long', month:'short', day:'numeric' });
+
+// TIMER
+let timerInterval = null, timerRunning = false;
+let totalSecs = 25 * 60, remainSecs = 25 * 60, currentMode = 'Pomodoro';
+function setMode(min, sec, label) {
+  currentMode = label;
+  totalSecs = min * 60 + sec;
+  remainSecs = totalSecs;
+  updateTimerDisplay();
+  resetTimer();
+  document.querySelectorAll('.timer-tab').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+}
+function updateTimerDisplay() {
+  const m = Math.floor(remainSecs / 60).toString().padStart(2,'0');
+  const s = (remainSecs % 60).toString().padStart(2,'0');
+  document.getElementById('timerDisplay').textContent = m + ':' + s;
+  const pct = (remainSecs / totalSecs) * 100;
+  document.getElementById('timerBar').style.width = pct + '%';
+  document.getElementById('lockCountdown').textContent = m + ':' + s;
+}
+function toggleTimer() {
+  if (timerRunning) {
+    clearInterval(timerInterval); timerRunning = false;
+    document.getElementById('startBtn').textContent = '▶ Start';
+  } else {
+    timerRunning = true;
+    document.getElementById('startBtn').textContent = '⏸ Pause';
+    timerInterval = setInterval(() => {
+      if (remainSecs > 0) {
+        remainSecs--;
+        updateTimerDisplay();
+        const stats = JSON.parse(localStorage.getItem('studyhub_stats') || '{}');
+        stats.seconds = (stats.seconds || 0) + 1;
+        localStorage.setItem('studyhub_stats', JSON.stringify(stats));
+        updateStats();
+      } else {
+        clearInterval(timerInterval); timerRunning = false;
+        document.getElementById('startBtn').textContent = '▶ Start';
+        document.getElementById('lockOverlay').classList.remove('active');
+        const stats = JSON.parse(localStorage.getItem('studyhub_stats') || '{}');
+        stats.sessions = (stats.sessions || 0) + 1;
+        localStorage.setItem('studyhub_stats', JSON.stringify(stats));
+        updateStats();
+        alert('🎉 Session complete! Take a break.');
+      }
+    }, 1000);
+  }
+}
+function resetTimer() {
+  clearInterval(timerInterval); timerRunning = false;
+  remainSecs = totalSecs;
+  updateTimerDisplay();
+  document.getElementById('startBtn').textContent = '▶ Start';
+  document.getElementById('lockOverlay').classList.remove('active');
+}
+function toggleLock() {
+  if (!timerRunning) toggleTimer();
+  document.getElementById('lockOverlay').classList.add('active');
+}
+updateTimerDisplay();
+
+// STATS
+function updateStats() {
+  const stats = JSON.parse(localStorage.getItem('studyhub_stats') || '{}');
+  const secs = stats.seconds || 0;
+  const h = Math.floor(secs / 3600);
+  const m = Math.floor((secs % 3600) / 60);
+  document.getElementById('statHours').textContent = h > 0 ? h+'h '+m+'m' : m+'m';
+  document.getElementById('statSessions').textContent = stats.sessions || 0;
+  const todos = JSON.parse(localStorage.getItem('studyhub_todos') || '[]');
+  document.getElementById('statTasks').textContent = todos.filter(t => t.done).length;
+  document.getElementById('statNotes').textContent = localStorage.getItem('studyhub_note') ? 1 : 0;
+}
+updateStats();
+
+// TODOS
+let todos = JSON.parse(localStorage.getItem('studyhub_todos') || '[]');
+function renderTodos() {
+  const list = document.getElementById('todoList');
+  list.innerHTML = '';
+  todos.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'todo-item';
+    div.innerHTML = `<div class="todo-check ${t.done?'done':''}" onclick="toggleTodo(${i})">${t.done?'✓':''}</div>
+      <span class="todo-text ${t.done?'done':''}">${t.text}</span>
+      <span class="todo-del" onclick="deleteTodo(${i})">✕</span>`;
+    list.appendChild(div);
+  });
+  localStorage.setItem('studyhub_todos', JSON.stringify(todos));
+  updateStats();
+}
+function addTodo() {
+  const input = document.getElementById('todoInput');
+  if (!input.value.trim()) return;
+  todos.unshift({ text: input.value.trim(), done: false });
+  input.value = ''; renderTodos();
+}
+function toggleTodo(i) { todos[i].done = !todos[i].done; renderTodos(); }
+function deleteTodo(i) { todos.splice(i, 1); renderTodos(); }
+function clearDone() { todos = todos.filter(t => !t.done); renderTodos(); }
+renderTodos();
+
+// NOTES
+const notesArea = document.getElementById('notesArea');
+notesArea.value = localStorage.getItem('studyhub_note') || '';
+notesArea.addEventListener('input', () => {
+  document.getElementById('notesCount').textContent = notesArea.value.length + ' chars';
+});
+document.getElementById('notesCount').textContent = notesArea.value.length + ' chars';
+function saveNote() {
+  localStorage.setItem('studyhub_note', notesArea.value);
+  updateStats();
+  const btn = document.querySelector('.notes-save');
+  btn.textContent = '✅ Saved!';
+  setTimeout(() => btn.textContent = '💾 Save Note', 1500);
+}
+
+// TASKS
+let tasks = JSON.parse(localStorage.getItem('studyhub_tasks') || '[]');
+function renderTasks() {
+  const list = document.getElementById('tasksList');
+  list.innerHTML = '';
+  if (!tasks.length) {
+    list.innerHTML = '<div style="text-align:center;color:#CCC;padding:20px;font-size:14px;">No tasks yet. Add one below! 🎯</div>';
+    return;
+  }
+  tasks.forEach((t, i) => {
+    const div = document.createElement('div');
+    div.className = 'task-item';
+    div.innerHTML = `<div class="task-priority priority-${t.priority}"></div>
+      <div class="task-body"><div class="task-name">${t.name}</div><div class="task-sub">${t.priority.charAt(0).toUpperCase()+t.priority.slice(1)} priority</div></div>
+      <span class="task-due">Today</span>
+      <span class="todo-del" onclick="deleteTask(${i})" style="margin-left:8px">✕</span>`;
+    list.appendChild(div);
+  });
+  localStorage.setItem('studyhub_tasks', JSON.stringify(tasks));
+}
+function addTask() {
+  const input = document.getElementById('taskInput');
+  const priority = document.getElementById('taskPriority').value;
+  if (!input.value.trim()) return;
+  tasks.unshift({ name: input.value.trim(), priority });
+  input.value = ''; renderTasks();
+}
+function deleteTask(i) { tasks.splice(i, 1); renderTasks(); }
+function clearTasks() { tasks = []; renderTasks(); }
+renderTasks();
+
+// MUSIC (using Web Audio API for ambient tones)
+let audioCtx = null, currentNodes = [], isPlaying = false, currentTrack = -1;
+const trackConfigs = [
+  { name: 'Ocean Waves', freq: 80, type: 'filtered-noise' },
+  { name: 'Rain on Leaves', freq: 120, type: 'filtered-noise' },
+  { name: 'Café Ambience', freq: 200, type: 'filtered-noise' },
+  { name: 'Tibetan Bowls', freq: 432, type: 'tone' },
+];
+function playTrack(idx) {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  stopAudio();
+  const tracks = document.querySelectorAll('.music-track');
+  tracks.forEach(t => t.classList.remove('playing'));
+  if (currentTrack === idx && !isPlaying) {
+    tracks[idx].classList.add('playing');
+    startAmbient(trackConfigs[idx]);
+    currentTrack = idx; isPlaying = true;
+    startVisualizer();
+  } else if (currentTrack === idx) {
+    currentTrack = -1; isPlaying = false;
+    stopVisualizer();
+  } else {
+    tracks[idx].classList.add('playing');
+    startAmbient(trackConfigs[idx]);
+    currentTrack = idx; isPlaying = true;
+    startVisualizer();
+  }
+}
+function startAmbient(cfg) {
+  const gainNode = audioCtx.createGain();
+  gainNode.gain.value = 0.15;
+  gainNode.connect(audioCtx.destination);
+  if (cfg.type === 'filtered-noise') {
+    const bufferSize = audioCtx.sampleRate * 2;
+    const buffer = audioCtx.createBuffer(1, bufferSize, audioCtx.sampleRate);
+    const data = buffer.getChannelData(0);
+    for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+    const src = audioCtx.createBufferSource();
+    src.buffer = buffer; src.loop = true;
+    const filter = audioCtx.createBiquadFilter();
+    filter.type = 'lowpass'; filter.frequency.value = cfg.freq;
+    src.connect(filter); filter.connect(gainNode);
+    src.start();
+    currentNodes = [src, filter, gainNode];
+  } else {
+    const osc = audioCtx.createOscillator();
+    osc.type = 'sine'; osc.frequency.value = cfg.freq;
+    osc.connect(gainNode); osc.start();
+    currentNodes = [osc, gainNode];
+  }
+}
+function stopAudio() {
+  currentNodes.forEach(n => { try { n.stop && n.stop(); n.disconnect(); } catch(e){} });
+  currentNodes = [];
+}
+function startVisualizer() {
+  document.querySelectorAll('.vis-bar').forEach(b => b.classList.add('active'));
+}
+function stopVisualizer() {
+  document.querySelectorAll('.vis-bar').forEach(b => b.classList.remove('active'));
+}
+
+// STREAK
+const streakData = JSON.parse(localStorage.getItem('studyhub_streak') || '{"count":1,"lastDate":""}');
+const today = new Date().toDateString();
+if (streakData.lastDate !== today) {
+  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
+  if (streakData.lastDate === yesterday.toDateString()) streakData.count++;
+  else streakData.count = 1;
+  streakData.lastDate = today;
+  localStorage.setItem('studyhub_streak', JSON.stringify(streakData));
+}
+document.getElementById('streakCount').textContent = streakData.count;
+
+function logout() {
+  localStorage.removeItem('studyhub_current');
+  window.location.href = 'login.html';
+}
+</script>
+</body>
+</html>
